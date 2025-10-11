@@ -137,7 +137,7 @@ Monitor vendors and users
 
 ---
 
-## 🏗️ System Architecture
+## 🏗️ System Architecture (May be updated in the future.)
 
 ```mermaid
 graph TB
@@ -655,3 +655,4 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 *Empowering developers to build scalable rental marketplaces*
 
 </div>
+
