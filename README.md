@@ -1,4 +1,4 @@
-# RENTFLEX---PUBLIC
+# RENTFLEX
 
 <div align="center">
 
@@ -139,23 +139,35 @@ Monitor vendors and users
 
 ## 🏗️ System Architecture
 
-flowchart TD
-    %% Client
-    User["👤 User<br/>Browse & Book"]
-    Vendor["🏪 Vendor<br/>Manage Items"]
+```mermaid
+graph TB
+    %% Client Layer
+    User["👤 Users<br/>Browse & Book"]
+    Vendor["🏪 Vendors<br/>Manage Items"]
     Admin["👨‍💼 Admin<br/>Oversight"]
 
-    %% API Gateway
-    Gateway["🌉 API Gateway<br/>Routing & Auth"]
+    %% Gateway
+    Gateway["🌉 API Gateway<br/>Port: 8080"]
+    Eureka["📡 Eureka Server<br/>Port: 8761"]
 
-    %% Services
-    UserSvc["👤 User Service"]
-    VendorSvc["🏪 Vendor Service"]
-    InventorySvc["📦 Inventory Service"]
-    BookingSvc["📅 Booking Service"]
-    PaymentSvc["💳 Payment Service"]
-    NotifySvc["📧 Notification Service"]
-    AdminSvc["👨‍💼 Admin Service"]
+    %% Microservices
+    UserSvc["👤 User Service<br/>Port: 8081<br/>━━━━━━━━━━<br/>Registration<br/>Authentication<br/>Profile Mgmt"]
+    
+    VendorSvc["🏪 Vendor Service<br/>Port: 8082<br/>━━━━━━━━━━<br/>Onboarding<br/>Profile<br/>Ratings"]
+    
+    InventorySvc["📦 Inventory Service<br/>Port: 8083<br/>━━━━━━━━━━<br/>Item Listing<br/>Categories<br/>Availability"]
+    
+    BookingSvc["📅 Booking Service<br/>Port: 8084<br/>━━━━━━━━━━<br/>Reservations<br/>Scheduling<br/>Cancellations"]
+    
+    PaymentSvc["💳 Payment Service<br/>Port: 8085<br/>━━━━━━━━━━<br/>Payments<br/>Invoices<br/>Refunds"]
+    
+    NotifySvc["📧 Notification Service<br/>Port: 8086<br/>━━━━━━━━━━<br/>Email<br/>SMS<br/>Push Alerts"]
+    
+    AdminSvc["👨‍💼 Admin Service<br/>Port: 8087<br/>━━━━━━━━━━<br/>User Mgmt<br/>Monitoring<br/>Reports"]
+
+    %% Messaging
+    Kafka["📨 Apache Kafka<br/>Event Streaming"]
+    RabbitMQ["🐰 RabbitMQ<br/>Message Queue"]
 
     %% Databases
     UserDB[("🗄️ User DB")]
@@ -165,65 +177,73 @@ flowchart TD
     PaymentDB[("🗄️ Payment DB")]
     AdminDB[("🗄️ Admin DB")]
 
-    %% Messaging
-    Kafka["📨 Kafka"]
-    RabbitMQ["🐰 RabbitMQ"]
+    %% Flow: Clients to Gateway
+    User -->|"1. HTTP Request"| Gateway
+    Vendor -->|"1. HTTP Request"| Gateway
+    Admin -->|"1. HTTP Request"| Gateway
 
-    %% Client → Gateway
-    User --> Gateway
-    Vendor --> Gateway
-    Admin --> Gateway
+    %% Gateway to Services
+    Gateway -->|"2. Route to Service"| UserSvc
+    Gateway -->|"2. Route to Service"| VendorSvc
+    Gateway -->|"2. Route to Service"| InventorySvc
+    Gateway -->|"2. Route to Service"| BookingSvc
+    Gateway -->|"2. Route to Service"| PaymentSvc
+    Gateway -->|"2. Route to Service"| NotifySvc
+    Gateway -->|"2. Route to Service"| AdminSvc
 
-    %% Gateway → Services
-    Gateway --> UserSvc
-    Gateway --> VendorSvc
-    Gateway --> InventorySvc
-    Gateway --> BookingSvc
-    Gateway --> PaymentSvc
-    Gateway --> NotifySvc
-    Gateway --> AdminSvc
-
-    %% Services → Databases
-    UserSvc --> UserDB
-    VendorSvc --> VendorDB
-    InventorySvc --> InventoryDB
-    BookingSvc --> BookingDB
-    PaymentSvc --> PaymentDB
-    AdminSvc --> AdminDB
+    %% Service Discovery
+    Gateway -.->|"Register & Discover"| Eureka
+    UserSvc -.->|"Register"| Eureka
+    VendorSvc -.->|"Register"| Eureka
+    InventorySvc -.->|"Register"| Eureka
+    BookingSvc -.->|"Register"| Eureka
+    PaymentSvc -.->|"Register"| Eureka
+    NotifySvc -.->|"Register"| Eureka
+    AdminSvc -.->|"Register"| Eureka
 
     %% Inter-Service Communication
-    BookingSvc -->|Check Inventory| InventorySvc
-    BookingSvc -->|Create Payment| PaymentSvc
-    PaymentSvc -->|Notify Success| NotifySvc
-    InventorySvc -->|Notify Stock Update| NotifySvc
-    AdminSvc -->|Fetch Reports| UserSvc
-    AdminSvc -->|Fetch Reports| VendorSvc
-    AdminSvc -->|Fetch Reports| BookingSvc
-    AdminSvc -->|Fetch Reports| PaymentSvc
+    UserSvc <-->|"3a. Verify User"| BookingSvc
+    VendorSvc <-->|"3b. Get Vendor Info"| InventorySvc
+    BookingSvc <-->|"3c. Check Availability"| InventorySvc
+    BookingSvc -->|"3d. Initiate Payment"| PaymentSvc
+    PaymentSvc -->|"3e. Payment Status"| BookingSvc
 
-    %% Event-Driven Communication
-    BookingSvc --> Kafka
-    InventorySvc --> Kafka
-    Kafka --> InventorySvc
-    Kafka --> NotifySvc
+    %% Services to Databases
+    UserSvc -->|"4. Store/Retrieve"| UserDB
+    VendorSvc -->|"4. Store/Retrieve"| VendorDB
+    InventorySvc -->|"4. Store/Retrieve"| InventoryDB
+    BookingSvc -->|"4. Store/Retrieve"| BookingDB
+    PaymentSvc -->|"4. Store/Retrieve"| PaymentDB
+    AdminSvc -->|"4. Store/Retrieve"| AdminDB
 
+    %% Event Publishing to Kafka
+    BookingSvc -->|"5. Publish Event:<br/>Booking Created"| Kafka
+    InventorySvc -->|"5. Publish Event:<br/>Stock Updated"| Kafka
+    UserSvc -->|"5. Publish Event:<br/>User Registered"| Kafka
+    
     %% Message Queue
-    PaymentSvc --> RabbitMQ
-    RabbitMQ --> NotifySvc
+    PaymentSvc -->|"6. Queue Message:<br/>Process Payment"| RabbitMQ
+    BookingSvc -->|"6. Queue Message:<br/>Send Confirmation"| RabbitMQ
+    RabbitMQ -->|"7. Consume:<br/>Send Notification"| NotifySvc
+
+    %% Kafka Consumers
+    Kafka -.->|"8. Subscribe:<br/>Update Inventory"| InventorySvc
+    Kafka -.->|"8. Subscribe:<br/>Send Welcome Email"| NotifySvc
+    Kafka -.->|"8. Subscribe:<br/>Log Activity"| AdminSvc
 
     %% Styling
-    classDef clientStyle fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:#fff
-    classDef gatewayStyle fill:#2196F3,stroke:#1976D2,stroke-width:2px,color:#fff
+    classDef clientStyle fill:#9C27B0,stroke:#7B1FA2,stroke-width:3px,color:#fff
+    classDef gatewayStyle fill:#2196F3,stroke:#1976D2,stroke-width:3px,color:#fff
     classDef serviceStyle fill:#4CAF50,stroke:#388E3C,stroke-width:2px,color:#fff
+    classDef messageStyle fill:#FF9800,stroke:#F57C00,stroke-width:3px,color:#fff
     classDef dbStyle fill:#607D8B,stroke:#455A64,stroke-width:2px,color:#fff
-    classDef messageStyle fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#fff
 
     class User,Vendor,Admin clientStyle
-    class Gateway gatewayStyle
+    class Gateway,Eureka gatewayStyle
     class UserSvc,VendorSvc,InventorySvc,BookingSvc,PaymentSvc,NotifySvc,AdminSvc serviceStyle
-    class UserDB,VendorDB,InventoryDB,BookingDB,PaymentDB,AdminDB dbStyle
     class Kafka,RabbitMQ messageStyle
-
+    class UserDB,VendorDB,InventoryDB,BookingDB,PaymentDB,AdminDB dbStyle
+```
 
 ### 📊 Architecture Flow Explained
 
@@ -245,39 +265,74 @@ flowchart TD
 </tr>
 <tr>
 <td>3️⃣</td>
+<td>Service ↔️ Service</td>
+<td><b>Inter-Service Communication:</b><br/>
+• User Service ↔️ Booking Service (Verify User)<br/>
+• Vendor Service ↔️ Inventory Service (Get Vendor Info)<br/>
+• Booking Service ↔️ Inventory Service (Check Availability)<br/>
+• Booking Service → Payment Service (Initiate Payment)<br/>
+• Payment Service → Booking Service (Payment Status)</td>
+</tr>
+<tr>
+<td>4️⃣</td>
 <td>Service → Database</td>
 <td>Each service stores/retrieves data from its own database</td>
 </tr>
 <tr>
-<td>4️⃣</td>
-<td>Service → Kafka</td>
-<td>Services publish events (e.g., "Booking Created", "Stock Updated")</td>
-</tr>
-<tr>
 <td>5️⃣</td>
-<td>Service → RabbitMQ</td>
-<td>Payment service queues messages for processing</td>
+<td>Service → Kafka</td>
+<td>Services publish events (e.g., "Booking Created", "Stock Updated", "User Registered")</td>
 </tr>
 <tr>
 <td>6️⃣</td>
+<td>Service → RabbitMQ</td>
+<td>Services queue messages for async processing (Payments, Confirmations)</td>
+</tr>
+<tr>
+<td>7️⃣</td>
 <td>RabbitMQ → Notification</td>
 <td>Notification service consumes messages to send emails/SMS</td>
 </tr>
 <tr>
-<td>7️⃣</td>
+<td>8️⃣</td>
 <td>Kafka → Services</td>
-<td>Services subscribe to events and react accordingly</td>
+<td>Services subscribe to events and react (Update Inventory, Send Emails, Log Activity)</td>
 </tr>
 </table>
 
 ### 🔄 Communication Patterns
 
-| Pattern | Symbol | Usage |
-|---------|--------|-------|
-| **Synchronous** | `→` Solid Line | Direct HTTP REST calls between services |
-| **Service Discovery** | `-.->` Dotted Line | Services register with Eureka for discovery |
-| **Event-Driven** | `→` with label | Asynchronous event publishing via Kafka |
-| **Message Queue** | `→` via RabbitMQ | Task queuing for background processing |
+| Pattern | Symbol | Usage | Example |
+|---------|--------|-------|---------|
+| **Synchronous (REST)** | `→` Solid Line | Direct HTTP REST calls | User Service → Booking Service |
+| **Bidirectional (REST)** | `↔` Double Arrow | Two-way communication | Booking ↔ Inventory (check availability) |
+| **Service Discovery** | `-.->` Dotted Line | Services register with Eureka | All services register for discovery |
+| **Event Publishing** | `→` to Kafka | Asynchronous event publishing | Booking publishes "Booking Created" |
+| **Event Subscribing** | `-.->` from Kafka | Services consume events | Notification subscribes to events |
+| **Message Queue** | `→` via RabbitMQ | Task queuing for background work | Payment queues notification tasks |
+
+### 💡 Real-World Example: Creating a Booking
+
+```
+1. User requests to book an item
+   ↓
+2. API Gateway routes to Booking Service
+   ↓
+3. Booking Service:
+   • Calls User Service to verify user ✓
+   • Calls Inventory Service to check availability ✓
+   • Calls Payment Service to process payment ✓
+   ↓
+4. Each service saves data to its database
+   ↓
+5. Booking Service publishes "Booking Created" event to Kafka
+   ↓
+6. Payment Service queues notification message to RabbitMQ
+   ↓
+7. Notification Service consumes from RabbitMQ and sends email
+   ↓
+8. Inventory Service subscribes to Kafka and updates stock
+```
 
 ---
 
@@ -581,7 +636,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/surajktdev)
 [![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:surajktdev@example.com)
 
-**Project Link:** [RentFlex---Public](https://github.com/surajktdev/RentFlex---Public)
+**Project Link:** [RentFlex](https://github.com/surajktdev/RentFlex---Public)
 
 </div>
 
@@ -600,4 +655,3 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 *Empowering developers to build scalable rental marketplaces*
 
 </div>
-
