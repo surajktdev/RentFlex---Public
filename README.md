@@ -613,11 +613,11 @@ kubectl delete namespace rentflex
 
 | Component | Status | Coverage |
 |-----------|--------|----------|
-| User Service | ✅ Complete | 85% |
-| Vendor Service | ✅ Complete | 82% |
-| Inventory Service | ✅ Complete | 88% |
-| Booking Service | 🚧 In Progress | 75% |
-| Payment Service | 🚧 In Progress | 60% |
+| User Service | ✅ Complete | 80% |
+| Vendor Service | 🚧 In Progress | 70% |
+| Inventory Service | 🚧 In Progress | 50% |
+| Booking Service | 🚧 In Progress | 30% |
+| Payment Service | 🚧 In Progress | - |
 | Notification Service | ⏳ Planned | - |
 | Admin Service | ⏳ Planned | - |
 
@@ -638,8 +638,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ### **Suraj Kumar**
 
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/surajktdev)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/surajktdev)
-[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:surajktdev@example.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/suraj-kumar-tiwari-javadev)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:surajdeveloper9@gmail.com)
 
 **Project Link:** [RentFlex](https://github.com/surajktdev/RentFlex---Public)
 
@@ -660,6 +660,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 *Empowering developers to build scalable rental marketplaces*
 
 </div>
+
 
 
 
