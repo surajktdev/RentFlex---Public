@@ -139,92 +139,81 @@ Monitor vendors and users
 
 ## 🏗️ System Architecture
 
-<div align="center">
+```mermaid
+graph TB
+    subgraph Client["Client Layer"]
+        User[👤 Users]
+        Vendor[🏪 Vendors]
+        Admin[👨‍💼 Admin]
+    end
 
-### **Microservices Architecture with Event-Driven Communication**
+    subgraph Gateway["API Gateway Layer"]
+        APIGateway[🌐 API Gateway<br/>Spring Cloud Gateway]
+        Eureka[📡 Service Registry<br/>Eureka Server]
+    end
 
+    subgraph Services["Microservices Layer"]
+        UserService[👤 User Service<br/>Port: 8081]
+        VendorService[🏪 Vendor Service<br/>Port: 8082]
+        InventoryService[📦 Inventory Service<br/>Port: 8083]
+        BookingService[📅 Booking Service<br/>Port: 8084]
+        PaymentService[💳 Payment Service<br/>Port: 8085]
+        NotificationService[📧 Notification Service<br/>Port: 8086]
+        AdminService[👨‍💼 Admin Service<br/>Port: 8087]
+    end
+
+    subgraph Messaging["Messaging Layer"]
+        Kafka[📨 Apache Kafka<br/>Event Streaming]
+        RabbitMQ[🐰 RabbitMQ<br/>Message Queue]
+    end
+
+    subgraph Data["Data Layer"]
+        UserDB[(🗄️ User DB<br/>MySQL)]
+        VendorDB[(🗄️ Vendor DB<br/>MySQL)]
+        InventoryDB[(🗄️ Inventory DB<br/>MySQL)]
+        BookingDB[(🗄️ Booking DB<br/>MySQL)]
+        PaymentDB[(🗄️ Payment DB<br/>MySQL)]
+        AdminDB[(🗄️ Admin DB<br/>MySQL)]
+    end
+
+    User --> APIGateway
+    Vendor --> APIGateway
+    Admin --> APIGateway
+
+    APIGateway --> Eureka
+    APIGateway --> UserService
+    APIGateway --> VendorService
+    APIGateway --> InventoryService
+    APIGateway --> BookingService
+    APIGateway --> PaymentService
+    APIGateway --> NotificationService
+    APIGateway --> AdminService
+
+    UserService --> Eureka
+    VendorService --> Eureka
+    InventoryService --> Eureka
+    BookingService --> Eureka
+    PaymentService --> Eureka
+    NotificationService --> Eureka
+    AdminService --> Eureka
+
+    BookingService --> Kafka
+    InventoryService --> Kafka
+    PaymentService --> RabbitMQ
+    NotificationService --> RabbitMQ
+
+    UserService --> UserDB
+    VendorService --> VendorDB
+    InventoryService --> InventoryDB
+    BookingService --> BookingDB
+    PaymentService --> PaymentDB
+    AdminService --> AdminDB
+
+    style APIGateway fill:#2496ED,stroke:#1a73b8,color:#fff
+    style Eureka fill:#00bcd4,stroke:#008ba3,color:#fff
+    style Kafka fill:#231F20,stroke:#000,color:#fff
+    style RabbitMQ fill:#FF6600,stroke:#cc5200,color:#fff
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                                                                             │
-│                              👤 END USERS                                   │
-│                                    │                                        │
-│                                    ▼                                        │
-│                        ┌───────────────────────┐                           │
-│                        │   🌐 API GATEWAY      │                           │
-│                        │  (Spring Cloud)       │                           │
-│                        └───────────┬───────────┘                           │
-│                                    │                                        │
-│                 ┌──────────────────┼──────────────────┐                    │
-│                 │                  │                  │                    │
-│    ┌────────────▼─────────┐  ┌────▼──────────┐  ┌───▼────────────┐       │
-│    │  📡 SERVICE DISCOVERY │  │ 🔐 AUTH       │  │ ⚙️  CONFIG     │       │
-│    │     (Eureka)          │  │    SERVICE    │  │    SERVER      │       │
-│    └───────────────────────┘  └───────────────┘  └────────────────┘       │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         MICROSERVICES LAYER                                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐      │
-│  │ 👤 USER     │  │ 🏪 VENDOR   │  │ 📦 INVENTORY│  │ 📅 BOOKING  │      │
-│  │  SERVICE    │  │  SERVICE    │  │  SERVICE    │  │  SERVICE    │      │
-│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘      │
-│         │                │                │                │              │
-│         └────────────────┴────────────────┴────────────────┘              │
-│                                  │                                         │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐      │
-│  │ 💳 PAYMENT  │  │ 📧 NOTIFY   │  │ 👨‍💼 ADMIN   │  │ 📊 ANALYTICS│      │
-│  │  SERVICE    │  │  SERVICE    │  │  SERVICE    │  │  SERVICE    │      │
-│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘      │
-│         │                │                │                │              │
-│         └────────────────┴────────────────┴────────────────┘              │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                      EVENT-DRIVEN MESSAGING LAYER                           │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│     ┌─────────────────────────────┐      ┌─────────────────────────────┐  │
-│     │  📨 APACHE KAFKA            │      │  🐰 RABBITMQ                │  │
-│     │  (Event Streaming)          │      │  (Message Queue)            │  │
-│     │                             │      │                             │  │
-│     │  • Booking Events           │      │  • Payment Processing       │  │
-│     │  • Inventory Updates        │      │  • Email Notifications      │  │
-│     │  • User Activity Logs       │      │  • SMS Alerts               │  │
-│     └─────────────────────────────┘      └─────────────────────────────┘  │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           DATA LAYER                                        │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
-│  │ 🗄️ USER  │  │ 🗄️ VENDOR│  │🗄️INVENTORY│  │🗄️ BOOKING│  │🗄️ PAYMENT│    │
-│  │    DB    │  │    DB    │  │    DB    │  │    DB    │  │    DB    │    │
-│  │ (MySQL)  │  │ (MySQL)  │  │ (MySQL)  │  │ (MySQL)  │  │ (MySQL)  │    │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘  └──────────┘    │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### **Architecture Highlights**
-
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **API Gateway** | Spring Cloud Gateway | Single entry point, routing, load balancing |
-| **Service Discovery** | Netflix Eureka | Dynamic service registration & discovery |
-| **Microservices** | Spring Boot | Independent, scalable business services |
-| **Event Streaming** | Apache Kafka | Real-time event processing & data pipeline |
-| **Message Queue** | RabbitMQ | Asynchronous task processing & notifications |
-| **Database** | MySQL | Persistent data storage per service |
-| **Containerization** | Docker | Service isolation & deployment |
-| **Orchestration** | Kubernetes | Container management & scaling |
-
-</div>
 
 ---
 
@@ -284,7 +273,7 @@ Monitor vendors and users
 | **Booking Service** | 📅 | Rental booking, scheduling, cancellations, and history | 8084 |
 | **Payment Service** | 💳 | Payment processing, invoices, and refunds | 8085 |
 | **Notification Service** | 📧 | Email, SMS, and push notifications | 8086 |
-| **Admin Service** | 👨‍💼 | Platform management, monitoring, and analytics | 8087 |
+| **Admin Service** | 👨‍💼 | Platform management, monitoring, and reports | 8087 |
 | **API Gateway** | 🌐 | Request routing, load balancing, and authentication | 8080 |
 | **Service Registry** | 📡 | Service discovery and health monitoring | 8761 |
 
