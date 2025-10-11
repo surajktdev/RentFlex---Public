@@ -1,4 +1,4 @@
-# RENTFLEX
+# RENTFLEX---PUBLIC
 
 <div align="center">
 
@@ -141,78 +141,113 @@ Monitor vendors and users
 
 ```mermaid
 graph TB
-    subgraph Client["Client Layer"]
-        User[👤 Users]
-        Vendor[🏪 Vendors]
-        Admin[👨‍💼 Admin]
+    subgraph Client["🌐 CLIENT LAYER"]
+        User["👤 Users<br/><br/>Browse & Book Items"]
+        Vendor["🏪 Vendors<br/><br/>Manage Inventory"]
+        Admin["👨‍💼 Admin<br/><br/>Platform Management"]
     end
 
-    subgraph Gateway["API Gateway Layer"]
-        APIGateway[🌐 API Gateway<br/>Spring Cloud Gateway]
-        Eureka[📡 Service Registry<br/>Eureka Server]
+    subgraph Gateway["🚪 API GATEWAY LAYER"]
+        APIGateway["🌉 API Gateway<br/>━━━━━━━━━━<br/>Spring Cloud Gateway<br/>Port: 8080<br/><br/>✓ Request Routing<br/>✓ Load Balancing<br/>✓ Authentication"]
+        Eureka["📡 Service Registry<br/>━━━━━━━━━━<br/>Netflix Eureka<br/>Port: 8761<br/><br/>✓ Service Discovery<br/>✓ Health Monitoring"]
     end
 
-    subgraph Services["Microservices Layer"]
-        UserService[👤 User Service<br/>Port: 8081]
-        VendorService[🏪 Vendor Service<br/>Port: 8082]
-        InventoryService[📦 Inventory Service<br/>Port: 8083]
-        BookingService[📅 Booking Service<br/>Port: 8084]
-        PaymentService[💳 Payment Service<br/>Port: 8085]
-        NotificationService[📧 Notification Service<br/>Port: 8086]
-        AdminService[👨‍💼 Admin Service<br/>Port: 8087]
+    subgraph Services["⚙️ MICROSERVICES LAYER"]
+        direction TB
+        Row1["
+        ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+        │ 👤 User Service │  │ 🏪 Vendor       │  │ 📦 Inventory    │
+        │                 │  │    Service      │  │    Service      │
+        │ Port: 8081      │  │ Port: 8082      │  │ Port: 8083      │
+        │                 │  │                 │  │                 │
+        │ • Registration  │  │ • Onboarding    │  │ • Item Listing  │
+        │ • Authentication│  │ • Profile Mgmt  │  │ • Categories    │
+        │ • Profile       │  │ • Ratings       │  │ • Availability  │
+        └─────────────────┘  └─────────────────┘  └─────────────────┘
+        "]
+        
+        Row2["
+        ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+        │ 📅 Booking      │  │ 💳 Payment      │  │ 📧 Notification │
+        │    Service      │  │    Service      │  │    Service      │
+        │ Port: 8084      │  │ Port: 8085      │  │ Port: 8086      │
+        │                 │  │                 │  │                 │
+        │ • Reservations  │  │ • Payments      │  │ • Email/SMS     │
+        │ • Scheduling    │  │ • Invoices      │  │ • Push Alerts   │
+        │ • Cancellations │  │ • Refunds       │  │ • Templates     │
+        └─────────────────┘  └─────────────────┘  └─────────────────┘
+        "]
+        
+        AdminService["
+        ┌──────────────────────────┐
+        │  👨‍💼 Admin Service         │
+        │  Port: 8087              │
+        │                          │
+        │  • User Management       │
+        │  • Vendor Oversight      │
+        │  • Platform Monitoring   │
+        │  • Reports & Analytics   │
+        └──────────────────────────┘
+        "]
     end
 
-    subgraph Messaging["Messaging Layer"]
-        Kafka[📨 Apache Kafka<br/>Event Streaming]
-        RabbitMQ[🐰 RabbitMQ<br/>Message Queue]
+    subgraph Messaging["📨 MESSAGING LAYER"]
+        Kafka["📨 Apache Kafka<br/>━━━━━━━━━━<br/>Event Streaming<br/><br/>✓ Booking Events<br/>✓ Inventory Updates<br/>✓ Activity Logs"]
+        RabbitMQ["🐰 RabbitMQ<br/>━━━━━━━━━━<br/>Message Queue<br/><br/>✓ Payment Processing<br/>✓ Email Notifications<br/>✓ SMS Alerts"]
     end
 
-    subgraph Data["Data Layer"]
-        UserDB[(🗄️ User DB<br/>MySQL)]
-        VendorDB[(🗄️ Vendor DB<br/>MySQL)]
-        InventoryDB[(🗄️ Inventory DB<br/>MySQL)]
-        BookingDB[(🗄️ Booking DB<br/>MySQL)]
-        PaymentDB[(🗄️ Payment DB<br/>MySQL)]
-        AdminDB[(🗄️ Admin DB<br/>MySQL)]
+    subgraph Data["💾 DATA PERSISTENCE LAYER"]
+        DB1["🗄️ User DB<br/>MySQL"]
+        DB2["🗄️ Vendor DB<br/>MySQL"]
+        DB3["🗄️ Inventory DB<br/>MySQL"]
+        DB4["🗄️ Booking DB<br/>MySQL"]
+        DB5["🗄️ Payment DB<br/>MySQL"]
+        DB6["🗄️ Admin DB<br/>MySQL"]
     end
 
-    User --> APIGateway
-    Vendor --> APIGateway
-    Admin --> APIGateway
+    %% Client to Gateway
+    User -.->|HTTPS Request| APIGateway
+    Vendor -.->|HTTPS Request| APIGateway
+    Admin -.->|HTTPS Request| APIGateway
 
-    APIGateway --> Eureka
-    APIGateway --> UserService
-    APIGateway --> VendorService
-    APIGateway --> InventoryService
-    APIGateway --> BookingService
-    APIGateway --> PaymentService
-    APIGateway --> NotificationService
-    APIGateway --> AdminService
+    %% Gateway Layer
+    APIGateway <==>|Service Discovery| Eureka
 
-    UserService --> Eureka
-    VendorService --> Eureka
-    InventoryService --> Eureka
-    BookingService --> Eureka
-    PaymentService --> Eureka
-    NotificationService --> Eureka
-    AdminService --> Eureka
+    %% Gateway to Services
+    APIGateway ==>|Route| Row1
+    APIGateway ==>|Route| Row2
+    APIGateway ==>|Route| AdminService
 
-    BookingService --> Kafka
-    InventoryService --> Kafka
-    PaymentService --> RabbitMQ
-    NotificationService --> RabbitMQ
+    %% Services to Eureka
+    Row1 -.->|Register| Eureka
+    Row2 -.->|Register| Eureka
+    AdminService -.->|Register| Eureka
 
-    UserService --> UserDB
-    VendorService --> VendorDB
-    InventoryService --> InventoryDB
-    BookingService --> BookingDB
-    PaymentService --> PaymentDB
-    AdminService --> AdminDB
+    %% Services to Messaging
+    Row1 -->|Publish Events| Kafka
+    Row2 -->|Publish Events| Kafka
+    Row2 -->|Queue Messages| RabbitMQ
 
-    style APIGateway fill:#2496ED,stroke:#1a73b8,color:#fff
-    style Eureka fill:#00bcd4,stroke:#008ba3,color:#fff
-    style Kafka fill:#231F20,stroke:#000,color:#fff
-    style RabbitMQ fill:#FF6600,stroke:#cc5200,color:#fff
+    %% Services to Database
+    Row1 ---|Persist Data| DB1
+    Row1 ---|Persist Data| DB2
+    Row1 ---|Persist Data| DB3
+    Row2 ---|Persist Data| DB4
+    Row2 ---|Persist Data| DB5
+    AdminService ---|Persist Data| DB6
+
+    %% Styling
+    classDef gatewayStyle fill:#2496ED,stroke:#1a73b8,stroke-width:3px,color:#fff
+    classDef serviceStyle fill:#6DB33F,stroke:#5a9633,stroke-width:2px,color:#fff
+    classDef messagingStyle fill:#FF6600,stroke:#cc5200,stroke-width:3px,color:#fff
+    classDef databaseStyle fill:#4479A1,stroke:#355f7d,stroke-width:2px,color:#fff
+    classDef clientStyle fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:#fff
+
+    class APIGateway,Eureka gatewayStyle
+    class Row1,Row2,AdminService serviceStyle
+    class Kafka,RabbitMQ messagingStyle
+    class DB1,DB2,DB3,DB4,DB5,DB6 databaseStyle
+    class User,Vendor,Admin clientStyle
 ```
 
 ---
@@ -517,7 +552,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/surajktdev)
 [![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:surajktdev@example.com)
 
-**Project Link:** [RentFlex](https://github.com/surajktdev/RentFlex---Public)
+**Project Link:** [RentFlex---Public](https://github.com/surajktdev/RentFlex---Public)
 
 </div>
 
