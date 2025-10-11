@@ -142,26 +142,26 @@ Monitor vendors and users
 ```mermaid
 graph TB
     %% Clients
-    User["👤 Users<br/>Browse & Book"]
-    Vendor["🏪 Vendors<br/>Manage Items"]
-    Admin["👨‍💼 Admin<br/>Oversight"]
+    User["👤 Users\nBrowse & Book"]
+    Vendor["🏪 Vendors\nManage Items"]
+    Admin["👨‍💼 Admin\nOversight"]
 
     %% Gateway & Discovery
-    Gateway["🌉 API Gateway<br/>Port: 8080"]
-    Eureka["📡 Eureka Server<br/>Port: 8761"]
+    Gateway["🌉 API Gateway\nPort: 8080"]
+    Eureka["📡 Eureka Server\nPort: 8761"]
 
     %% Services with endpoints
-    UserSvc["👤 User Service<br/>Port: 8086<br/>Endpoints:<br/>registerUser()<br/>loginUser()<br/>getUserProfile()<br/>updateUserProfile()"]
-    VendorSvc["🏪 Vendor Service<br/>Port: 8087<br/>Endpoints:<br/>registerVendor()<br/>getVendorProfile()<br/>updateVendorProfile()<br/>getVendorRatings()"]
-    InventorySvc["📦 Inventory Service<br/>Port: 8083<br/>Endpoints:<br/>addItem()<br/>updateItem()<br/>getItems()<br/>getItemAvailability()"]
-    BookingSvc["📅 Booking Service<br/>Port: 8082<br/>Endpoints:<br/>createBooking()<br/>getBooking()<br/>cancelBooking()<br/>getBookingSchedule()"]
-    PaymentSvc["💳 Payment Service<br/>Port: 8085<br/>Endpoints:<br/>initiatePayment()<br/>getPaymentStatus()<br/>processRefund()"]
-    NotifySvc["📧 Notification Service<br/>Port: 8084<br/>Endpoints:<br/>sendEmail()<br/>sendSMS()<br/>sendPush()"]
-    AdminSvc["👨‍💼 Admin Service<br/>Port: 8081<br/>Endpoints:<br/>getUsers()<br/>getVendors()<br/>generateReports()<br/>monitorSystem()"]
+    UserSvc["👤 User Service\nPort: 8086\nEndpoints:\nregisterUser()\nloginUser()\ngetUserProfile()\nupdateUserProfile()"]
+    VendorSvc["🏪 Vendor Service\nPort: 8087\nEndpoints:\nregisterVendor()\ngetVendorProfile()\nupdateVendorProfile()\ngetVendorRatings()"]
+    InventorySvc["📦 Inventory Service\nPort: 8083\nEndpoints:\naddItem()\nupdateItem()\ngetItems()\ngetItemAvailability()"]
+    BookingSvc["📅 Booking Service\nPort: 8082\nEndpoints:\ncreateBooking()\ngetBooking()\ncancelBooking()\ngetBookingSchedule()"]
+    PaymentSvc["💳 Payment Service\nPort: 8085\nEndpoints:\ninitiatePayment()\ngetPaymentStatus()\nprocessRefund()"]
+    NotifySvc["📧 Notification Service\nPort: 8084\nEndpoints:\nsendEmail()\nsendSMS()\nsendPush()"]
+    AdminSvc["👨‍💼 Admin Service\nPort: 8081\nEndpoints:\ngetUsers()\ngetVendors()\ngenerateReports()\nmonitorSystem()"]
 
     %% Messaging
-    Kafka["📨 Kafka<br/>Event Streaming"]
-    RabbitMQ["🐰 RabbitMQ<br/>Message Queue"]
+    Kafka["📨 Kafka\nEvent Streaming"]
+    RabbitMQ["🐰 RabbitMQ\nMessage Queue"]
 
     %% Databases
     UserDB[("🗄️ User DB")]
@@ -196,22 +196,22 @@ graph TB
     AdminSvc -.-> Eureka
 
     %% Booking Service Communication
-    BookingSvc -->|verifyUser(userId)<br/>REST/Feign| UserSvc
-    BookingSvc -->|checkItemAvailability(itemId)<br/>REST/Feign| InventorySvc
-    BookingSvc -->|initiatePayment(bookingId)<br/>REST/Feign/RabbitMQ| PaymentSvc
-    BookingSvc -->|sendBookingNotification<br/>Kafka/RabbitMQ| NotifySvc
+    BookingSvc -->|"verifyUser(userId)\nREST/Feign"| UserSvc
+    BookingSvc -->|"checkItemAvailability(itemId)\nREST/Feign"| InventorySvc
+    BookingSvc -->|"initiatePayment(bookingId)\nREST/Feign/RabbitMQ"| PaymentSvc
+    BookingSvc -->|"sendBookingNotification\nKafka/RabbitMQ"| NotifySvc
 
     %% Inventory Service Communication
-    InventorySvc -->|getVendorProfile(vendorId)<br/>REST/Feign| VendorSvc
-    InventorySvc -->|updateAvailability<br/>Kafka Event| BookingSvc
+    InventorySvc -->|"getVendorProfile(vendorId)\nREST/Feign"| VendorSvc
+    InventorySvc -->|"updateAvailability\nKafka Event"| BookingSvc
 
     %% Vendor Service Communication
-    VendorSvc -->|sendApproval/Rejection<br/>Kafka Event| NotifySvc
-    VendorSvc -->|KYC Approval<br/>REST/Kafka| AdminSvc
+    VendorSvc -->|"sendApproval/Rejection\nKafka Event"| NotifySvc
+    VendorSvc -->|"KYC Approval\nREST/Kafka"| AdminSvc
 
     %% Notification Service
-    NotifySvc -->|sendEmail/SMS/Push| User
-    NotifySvc -->|sendEmail/SMS/Push| Vendor
+    NotifySvc -->|"sendEmail/SMS/Push"| User
+    NotifySvc -->|"sendEmail/SMS/Push"| Vendor
 
     %% Services -> Databases
     UserSvc --> UserDB
@@ -247,6 +247,7 @@ graph TB
     class UserSvc,VendorSvc,InventorySvc,BookingSvc,PaymentSvc,NotifySvc,AdminSvc serviceStyle
     class Kafka,RabbitMQ messageStyle
     class UserDB,VendorDB,InventoryDB,BookingDB,PaymentDB,AdminDB dbStyle
+
 ```
 
 ### 📊 Architecture Flow Explained
@@ -659,6 +660,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 *Empowering developers to build scalable rental marketplaces*
 
 </div>
+
 
 
 
