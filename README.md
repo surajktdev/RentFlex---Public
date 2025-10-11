@@ -141,29 +141,23 @@ Monitor vendors and users
 
 ```mermaid
 graph TB
-    %% Client Layer
+    %% Clients
     User["👤 Users<br/>Browse & Book"]
     Vendor["🏪 Vendors<br/>Manage Items"]
     Admin["👨‍💼 Admin<br/>Oversight"]
 
-    %% Gateway
+    %% Gateway & Discovery
     Gateway["🌉 API Gateway<br/>Port: 8080"]
     Eureka["📡 Eureka Server<br/>Port: 8761"]
 
-    %% Microservices
-    UserSvc["👤 User Service<br/>Port: 8081<br/>━━━━━━━━━━<br/>Registration<br/>Authentication<br/>Profile Mgmt"]
-    
-    VendorSvc["🏪 Vendor Service<br/>Port: 8082<br/>━━━━━━━━━━<br/>Onboarding<br/>Profile<br/>Ratings"]
-    
-    InventorySvc["📦 Inventory Service<br/>Port: 8083<br/>━━━━━━━━━━<br/>Item Listing<br/>Categories<br/>Availability"]
-    
-    BookingSvc["📅 Booking Service<br/>Port: 8084<br/>━━━━━━━━━━<br/>Reservations<br/>Scheduling<br/>Cancellations"]
-    
-    PaymentSvc["💳 Payment Service<br/>Port: 8085<br/>━━━━━━━━━━<br/>Payments<br/>Invoices<br/>Refunds"]
-    
-    NotifySvc["📧 Notification Service<br/>Port: 8086<br/>━━━━━━━━━━<br/>Email<br/>SMS<br/>Push Alerts"]
-    
-    AdminSvc["👨‍💼 Admin Service<br/>Port: 8087<br/>━━━━━━━━━━<br/>User Mgmt<br/>Monitoring<br/>Reports"]
+    %% Services
+    UserSvc["👤 User Service<br/>Port: 8081<br/>Endpoints:<br/>registerUser()<br/>loginUser()<br/>getUserProfile()<br/>updateUserProfile()"]
+    VendorSvc["🏪 Vendor Service<br/>Port: 8082<br/>Endpoints:<br/>registerVendor()<br/>getVendorProfile()<br/>updateVendorProfile()<br/>getVendorRatings()"]
+    InventorySvc["📦 Inventory Service<br/>Port: 8083<br/>Endpoints:<br/>addItem()<br/>updateItem()<br/>getItems()<br/>getItemAvailability()"]
+    BookingSvc["📅 Booking Service<br/>Port: 8084<br/>Endpoints:<br/>createBooking()<br/>getBooking()<br/>cancelBooking()<br/>getBookingSchedule()"]
+    PaymentSvc["💳 Payment Service<br/>Port: 8085<br/>Endpoints:<br/>initiatePayment()<br/>getPaymentStatus()<br/>processRefund()"]
+    NotifySvc["📧 Notification Service<br/>Port: 8086<br/>Endpoints:<br/>sendEmail()<br/>sendSMS()<br/>sendPush()"]
+    AdminSvc["👨‍💼 Admin Service<br/>Port: 8087<br/>Endpoints:<br/>getUsers()<br/>getVendors()<br/>generateReports()<br/>monitorSystem()"]
 
     %% Messaging
     Kafka["📨 Apache Kafka<br/>Event Streaming"]
@@ -177,65 +171,63 @@ graph TB
     PaymentDB[("🗄️ Payment DB")]
     AdminDB[("🗄️ Admin DB")]
 
-    %% Flow: Clients to Gateway
-    User -->|"1. HTTP Request"| Gateway
-    Vendor -->|"1. HTTP Request"| Gateway
-    Admin -->|"1. HTTP Request"| Gateway
+    %% Flow: Clients -> Gateway
+    User -->|"HTTP Request"| Gateway
+    Vendor -->|"HTTP Request"| Gateway
+    Admin -->|"HTTP Request"| Gateway
 
-    %% Gateway to Services
-    Gateway -->|"2. Route to Service"| UserSvc
-    Gateway -->|"2. Route to Service"| VendorSvc
-    Gateway -->|"2. Route to Service"| InventorySvc
-    Gateway -->|"2. Route to Service"| BookingSvc
-    Gateway -->|"2. Route to Service"| PaymentSvc
-    Gateway -->|"2. Route to Service"| NotifySvc
-    Gateway -->|"2. Route to Service"| AdminSvc
+    %% Gateway -> Services
+    Gateway -->|"Route"| UserSvc
+    Gateway -->|"Route"| VendorSvc
+    Gateway -->|"Route"| InventorySvc
+    Gateway -->|"Route"| BookingSvc
+    Gateway -->|"Route"| PaymentSvc
+    Gateway -->|"Route"| NotifySvc
+    Gateway -->|"Route"| AdminSvc
 
-    %% Service Discovery
-    Gateway -.->|"Register & Discover"| Eureka
-    UserSvc -.->|"Register"| Eureka
-    VendorSvc -.->|"Register"| Eureka
-    InventorySvc -.->|"Register"| Eureka
-    BookingSvc -.->|"Register"| Eureka
-    PaymentSvc -.->|"Register"| Eureka
-    NotifySvc -.->|"Register"| Eureka
-    AdminSvc -.->|"Register"| Eureka
+    %% Eureka Registration
+    Gateway -.-> Eureka
+    UserSvc -.-> Eureka
+    VendorSvc -.-> Eureka
+    InventorySvc -.-> Eureka
+    BookingSvc -.-> Eureka
+    PaymentSvc -.-> Eureka
+    NotifySvc -.-> Eureka
+    AdminSvc -.-> Eureka
 
-    %% Inter-Service Communication
-    UserSvc <-->|"3a. Verify User"| BookingSvc
-    VendorSvc <-->|"3b. Get Vendor Info"| InventorySvc
-    BookingSvc <-->|"3c. Check Availability"| InventorySvc
-    BookingSvc -->|"3d. Initiate Payment"| PaymentSvc
-    PaymentSvc -->|"3e. Payment Status"| BookingSvc
+    %% Inter-service Communication
+    BookingSvc -->|"verifyUser(userId) & getUserProfile()"| UserSvc
+    BookingSvc -->|"checkItemAvailability(itemId) & getItemDetails() "| InventorySvc
+    BookingSvc -->|"initiatePayment(bookingId) & getPaymentStatus() "| PaymentSvc
+    InventorySvc -->|"getVendorProfile(vendorId)"| VendorSvc
 
-    %% Services to Databases
-    UserSvc -->|"4. Store/Retrieve"| UserDB
-    VendorSvc -->|"4. Store/Retrieve"| VendorDB
-    InventorySvc -->|"4. Store/Retrieve"| InventoryDB
-    BookingSvc -->|"4. Store/Retrieve"| BookingDB
-    PaymentSvc -->|"4. Store/Retrieve"| PaymentDB
-    AdminSvc -->|"4. Store/Retrieve"| AdminDB
+    %% Databases
+    UserSvc --> UserDB
+    VendorSvc --> VendorDB
+    InventorySvc --> InventoryDB
+    BookingSvc --> BookingDB
+    PaymentSvc --> PaymentDB
+    AdminSvc --> AdminDB
 
-    %% Event Publishing to Kafka
-    BookingSvc -->|"5. Publish Event:<br/>Booking Created"| Kafka
-    InventorySvc -->|"5. Publish Event:<br/>Stock Updated"| Kafka
-    UserSvc -->|"5. Publish Event:<br/>User Registered"| Kafka
-    
-    %% Message Queue
-    PaymentSvc -->|"6. Queue Message:<br/>Process Payment"| RabbitMQ
-    BookingSvc -->|"6. Queue Message:<br/>Send Confirmation"| RabbitMQ
-    RabbitMQ -->|"7. Consume:<br/>Send Notification"| NotifySvc
+    %% Kafka Events
+    BookingSvc -->|"BookingCreated"| Kafka
+    InventorySvc -->|"StockUpdated"| Kafka
+    UserSvc -->|"UserRegistered"| Kafka
 
-    %% Kafka Consumers
-    Kafka -.->|"8. Subscribe:<br/>Update Inventory"| InventorySvc
-    Kafka -.->|"8. Subscribe:<br/>Send Welcome Email"| NotifySvc
-    Kafka -.->|"8. Subscribe:<br/>Log Activity"| AdminSvc
+    Kafka -.->|"Update Inventory"| InventorySvc
+    Kafka -.->|"Send Welcome Email"| NotifySvc
+    Kafka -.->|"Log Activity"| AdminSvc
+
+    %% RabbitMQ Messages
+    PaymentSvc -->|"Process Payment"| RabbitMQ
+    BookingSvc -->|"Send Booking Confirmation"| RabbitMQ
+    RabbitMQ -->|"Send Notification"| NotifySvc
 
     %% Styling
-    classDef clientStyle fill:#9C27B0,stroke:#7B1FA2,stroke-width:3px,color:#fff
-    classDef gatewayStyle fill:#2196F3,stroke:#1976D2,stroke-width:3px,color:#fff
+    classDef clientStyle fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:#fff
+    classDef gatewayStyle fill:#2196F3,stroke:#1976D2,stroke-width:2px,color:#fff
     classDef serviceStyle fill:#4CAF50,stroke:#388E3C,stroke-width:2px,color:#fff
-    classDef messageStyle fill:#FF9800,stroke:#F57C00,stroke-width:3px,color:#fff
+    classDef messageStyle fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#fff
     classDef dbStyle fill:#607D8B,stroke:#455A64,stroke-width:2px,color:#fff
 
     class User,Vendor,Admin clientStyle
@@ -655,4 +647,5 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 *Empowering developers to build scalable rental marketplaces*
 
 </div>
+
 
