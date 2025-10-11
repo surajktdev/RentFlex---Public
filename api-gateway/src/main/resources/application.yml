@@ -1,0 +1,43 @@
+server:
+  port: 8080
+
+# using this we can show one service at a time on swagger
+#springdoc:
+#  swagger-ui:
+#    path: /swagger-ui.html
+#    urls:
+#      - name: user-service
+#        url: http://localhost:8086/v3/api-docs
+#      - name: vendor-service
+#        url: http://localhost:8087/v3/api-docs
+
+# this is used to show multiple services at same time on swagger
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    url: http://localhost:8080/merged-api-docs
+
+
+spring:
+  security:
+    user:
+      name: admin
+      password: admin
+  application:
+    name: api-gateway
+
+  cloud:
+    discovery:
+      enabled: false
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: user-service
+              uri: http://localhost:8086
+              predicates:
+                - Path=/api/v1/users/**
+            - id: vendor-service
+              uri: http://localhost:8087
+              predicates:
+                - Path=/api/v1/vendor/**
