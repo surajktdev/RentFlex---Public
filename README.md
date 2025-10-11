@@ -139,35 +139,23 @@ Monitor vendors and users
 
 ## 🏗️ System Architecture
 
-```mermaid
-graph TB
-    %% Client Layer
-    User["👤 Users<br/>Browse & Book"]
-    Vendor["🏪 Vendors<br/>Manage Items"]
+flowchart TD
+    %% Client
+    User["👤 User<br/>Browse & Book"]
+    Vendor["🏪 Vendor<br/>Manage Items"]
     Admin["👨‍💼 Admin<br/>Oversight"]
 
-    %% Gateway
-    Gateway["🌉 API Gateway<br/>Port: 8080"]
-    Eureka["📡 Eureka Server<br/>Port: 8761"]
+    %% API Gateway
+    Gateway["🌉 API Gateway<br/>Routing & Auth"]
 
-    %% Microservices
-    UserSvc["👤 User Service<br/>Port: 8081<br/>━━━━━━━━━━<br/>Registration<br/>Authentication<br/>Profile Mgmt"]
-    
-    VendorSvc["🏪 Vendor Service<br/>Port: 8082<br/>━━━━━━━━━━<br/>Onboarding<br/>Profile<br/>Ratings"]
-    
-    InventorySvc["📦 Inventory Service<br/>Port: 8083<br/>━━━━━━━━━━<br/>Item Listing<br/>Categories<br/>Availability"]
-    
-    BookingSvc["📅 Booking Service<br/>Port: 8084<br/>━━━━━━━━━━<br/>Reservations<br/>Scheduling<br/>Cancellations"]
-    
-    PaymentSvc["💳 Payment Service<br/>Port: 8085<br/>━━━━━━━━━━<br/>Payments<br/>Invoices<br/>Refunds"]
-    
-    NotifySvc["📧 Notification Service<br/>Port: 8086<br/>━━━━━━━━━━<br/>Email<br/>SMS<br/>Push Alerts"]
-    
-    AdminSvc["👨‍💼 Admin Service<br/>Port: 8087<br/>━━━━━━━━━━<br/>User Mgmt<br/>Monitoring<br/>Reports"]
-
-    %% Messaging
-    Kafka["📨 Apache Kafka<br/>Event Streaming"]
-    RabbitMQ["🐰 RabbitMQ<br/>Message Queue"]
+    %% Services
+    UserSvc["👤 User Service"]
+    VendorSvc["🏪 Vendor Service"]
+    InventorySvc["📦 Inventory Service"]
+    BookingSvc["📅 Booking Service"]
+    PaymentSvc["💳 Payment Service"]
+    NotifySvc["📧 Notification Service"]
+    AdminSvc["👨‍💼 Admin Service"]
 
     %% Databases
     UserDB[("🗄️ User DB")]
@@ -177,63 +165,65 @@ graph TB
     PaymentDB[("🗄️ Payment DB")]
     AdminDB[("🗄️ Admin DB")]
 
-    %% Flow: Clients to Gateway
-    User -->|"1. HTTP Request"| Gateway
-    Vendor -->|"1. HTTP Request"| Gateway
-    Admin -->|"1. HTTP Request"| Gateway
+    %% Messaging
+    Kafka["📨 Kafka"]
+    RabbitMQ["🐰 RabbitMQ"]
 
-    %% Gateway to Services
-    Gateway -->|"2. Route to Service"| UserSvc
-    Gateway -->|"2. Route to Service"| VendorSvc
-    Gateway -->|"2. Route to Service"| InventorySvc
-    Gateway -->|"2. Route to Service"| BookingSvc
-    Gateway -->|"2. Route to Service"| PaymentSvc
-    Gateway -->|"2. Route to Service"| NotifySvc
-    Gateway -->|"2. Route to Service"| AdminSvc
+    %% Client → Gateway
+    User --> Gateway
+    Vendor --> Gateway
+    Admin --> Gateway
 
-    %% Service Discovery
-    Gateway -.->|"Register & Discover"| Eureka
-    UserSvc -.->|"Register"| Eureka
-    VendorSvc -.->|"Register"| Eureka
-    InventorySvc -.->|"Register"| Eureka
-    BookingSvc -.->|"Register"| Eureka
-    PaymentSvc -.->|"Register"| Eureka
-    NotifySvc -.->|"Register"| Eureka
-    AdminSvc -.->|"Register"| Eureka
+    %% Gateway → Services
+    Gateway --> UserSvc
+    Gateway --> VendorSvc
+    Gateway --> InventorySvc
+    Gateway --> BookingSvc
+    Gateway --> PaymentSvc
+    Gateway --> NotifySvc
+    Gateway --> AdminSvc
 
-    %% Services to Databases
-    UserSvc -->|"3. Store/Retrieve"| UserDB
-    VendorSvc -->|"3. Store/Retrieve"| VendorDB
-    InventorySvc -->|"3. Store/Retrieve"| InventoryDB
-    BookingSvc -->|"3. Store/Retrieve"| BookingDB
-    PaymentSvc -->|"3. Store/Retrieve"| PaymentDB
-    AdminSvc -->|"3. Store/Retrieve"| AdminDB
+    %% Services → Databases
+    UserSvc --> UserDB
+    VendorSvc --> VendorDB
+    InventorySvc --> InventoryDB
+    BookingSvc --> BookingDB
+    PaymentSvc --> PaymentDB
+    AdminSvc --> AdminDB
 
-    %% Event Publishing to Kafka
-    BookingSvc -->|"4. Publish Event:<br/>Booking Created"| Kafka
-    InventorySvc -->|"4. Publish Event:<br/>Stock Updated"| Kafka
-    
+    %% Inter-Service Communication
+    BookingSvc -->|Check Inventory| InventorySvc
+    BookingSvc -->|Create Payment| PaymentSvc
+    PaymentSvc -->|Notify Success| NotifySvc
+    InventorySvc -->|Notify Stock Update| NotifySvc
+    AdminSvc -->|Fetch Reports| UserSvc
+    AdminSvc -->|Fetch Reports| VendorSvc
+    AdminSvc -->|Fetch Reports| BookingSvc
+    AdminSvc -->|Fetch Reports| PaymentSvc
+
+    %% Event-Driven Communication
+    BookingSvc --> Kafka
+    InventorySvc --> Kafka
+    Kafka --> InventorySvc
+    Kafka --> NotifySvc
+
     %% Message Queue
-    PaymentSvc -->|"5. Queue Message:<br/>Process Payment"| RabbitMQ
-    RabbitMQ -->|"6. Consume:<br/>Send Notification"| NotifySvc
-
-    %% Kafka Consumers
-    Kafka -.->|"7. Subscribe:<br/>Update Inventory"| InventorySvc
-    Kafka -.->|"7. Subscribe:<br/>Send Confirmation"| NotifySvc
+    PaymentSvc --> RabbitMQ
+    RabbitMQ --> NotifySvc
 
     %% Styling
-    classDef clientStyle fill:#9C27B0,stroke:#7B1FA2,stroke-width:3px,color:#fff
-    classDef gatewayStyle fill:#2196F3,stroke:#1976D2,stroke-width:3px,color:#fff
+    classDef clientStyle fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:#fff
+    classDef gatewayStyle fill:#2196F3,stroke:#1976D2,stroke-width:2px,color:#fff
     classDef serviceStyle fill:#4CAF50,stroke:#388E3C,stroke-width:2px,color:#fff
-    classDef messageStyle fill:#FF9800,stroke:#F57C00,stroke-width:3px,color:#fff
     classDef dbStyle fill:#607D8B,stroke:#455A64,stroke-width:2px,color:#fff
+    classDef messageStyle fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#fff
 
     class User,Vendor,Admin clientStyle
-    class Gateway,Eureka gatewayStyle
+    class Gateway gatewayStyle
     class UserSvc,VendorSvc,InventorySvc,BookingSvc,PaymentSvc,NotifySvc,AdminSvc serviceStyle
-    class Kafka,RabbitMQ messageStyle
     class UserDB,VendorDB,InventoryDB,BookingDB,PaymentDB,AdminDB dbStyle
-```
+    class Kafka,RabbitMQ messageStyle
+
 
 ### 📊 Architecture Flow Explained
 
@@ -610,3 +600,4 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 *Empowering developers to build scalable rental marketplaces*
 
 </div>
+
