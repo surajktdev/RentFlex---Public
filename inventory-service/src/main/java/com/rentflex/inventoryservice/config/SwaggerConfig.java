@@ -1,13 +1,14 @@
-package com.rentflex.vendorservice.config;
+package com.rentflex.inventoryservice.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.servers.Server;
-import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
@@ -25,10 +26,10 @@ public class SwaggerConfig {
 
         Info information =
                 new Info()
-                        .title("RentFlex Vendor Service API's")
+                        .title("RentFlex Inventory Service API's")
                         .version("1.0")
                         .description(
-                                "API endpoints for managing vendors in the RentFlex platform, including vendor onboarding, profile management, item association, and role-based access control.")
+                                "API endpoints for managing inventory in the RentFlex platform, including item listings, category management, stock availability, and item-related operations.")
                         .contact(myContact);
         return new OpenAPI()
                 .info(information)
