@@ -1,4 +1,5 @@
 package com.rentflex.inventoryservice.model;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,12 +8,12 @@ import lombok.*;
 @Data
 public class Category {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String name;
+  @Column(nullable = false, unique = true)
+  private String name;
 
-    private String description;
+  private String description;
 }
