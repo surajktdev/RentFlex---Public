@@ -655,11 +655,12 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-**Made with ❤️ and ☕ by Suraj Kumar**
+**Made with ❤️ and ☕ by Suraj Tiwari**
 
 *Empowering developers to build scalable rental marketplaces*
 
 </div>
+
 
 
 
