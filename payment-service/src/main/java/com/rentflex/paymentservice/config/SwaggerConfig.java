@@ -28,7 +28,7 @@ public class SwaggerConfig {
                         .title("RentFlex Payment Service API")
                         .version("1.0")
                         .description(
-                                "API endpoints for managing users in the RentFlex platform, including user registration, login, profile management, and role-based access control.")
+                                "APIs for processing and managing payments in the RentFlex platform. Handles rental payments, refunds, payment gateway integration, transaction history, and ensures secure financial operations for users and vendors.")
                         .contact(myContact);
         return new OpenAPI()
                 .info(information)
