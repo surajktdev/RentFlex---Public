@@ -8,12 +8,9 @@ import com.rentflex.bookingservice.model.BookingStatus;
 import com.rentflex.bookingservice.repository.BookingRepository;
 import com.rentflex.bookingservice.repository.PaymentInfoRepository;
 import com.rentflex.bookingservice.service.BookingService;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -43,8 +40,8 @@ public class BookingServiceImpl implements BookingService {
         // userClient.validateUser(request.getUserId());
 
         // Check item availability via InventoryService
-        // inventoryClient.checkAvailability(request.getItemId(), request.getStartDate(), request.getEndDate());
-
+        // inventoryClient.checkAvailability(request.getItemId(), request.getStartDate(),
+        // request.getEndDate());
 
         Booking booking = new Booking();
         booking.setUserId(request.userId());
@@ -56,27 +53,59 @@ public class BookingServiceImpl implements BookingService {
         booking.setUpdatedAt(LocalDateTime.now());
 
         Booking saved = bookingRepository.save(booking);
-        return BookingResponseDTO.builder().bookingId(saved.getId()).message("Booking created successfully").build();
+        return BookingResponseDTO.builder()
+                .bookingId(saved.getId())
+                .message("Booking created successfully")
+                .build();
     }
 
     @Override
     public BookingResponseDTO getBookingById(Long bookingId) {
-        Booking bookingDetail = bookingRepository.findById(bookingId).orElseThrow(()->new RuntimeException("Booking not found with ID: "+bookingId));
-        return BookingResponseDTO.builder().bookingId(bookingDetail.getId()).status(bookingDetail.getStatus()).totalPrice(bookingDetail.getTotalPrice()).startDate(bookingDetail.getStartDate()).endDate(bookingDetail.getEndDate()).build();
+        Booking bookingDetail =
+                bookingRepository
+                        .findById(bookingId)
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Booking not found with ID: " + bookingId));
+        return BookingResponseDTO.builder()
+                .bookingId(bookingDetail.getId())
+                .status(bookingDetail.getStatus())
+                .totalPrice(bookingDetail.getTotalPrice())
+                .startDate(bookingDetail.getStartDate())
+                .endDate(bookingDetail.getEndDate())
+                .build();
     }
 
     @Override
     public List<BookingResponseDTO> getBookingsByUser(Long userId) {
-        Booking bookingDetail = bookingRepository.getBookingsByUser(userId).orElseThrow(() -> new RuntimeException("Booking not found with ID: " + userId));
+        Booking bookingDetail =
+                bookingRepository
+                        .getBookingsByUser(userId)
+                        .orElseThrow(
+                                () -> new RuntimeException("Booking not found with ID: " + userId));
 
-        return List.of(BookingResponseDTO.builder().bookingId(bookingDetail.getId()).status(bookingDetail.getStatus()).totalPrice(bookingDetail.getTotalPrice()).startDate(bookingDetail.getStartDate()).endDate(bookingDetail.getEndDate()).build());
+        return List.of(
+                BookingResponseDTO.builder()
+                        .bookingId(bookingDetail.getId())
+                        .status(bookingDetail.getStatus())
+                        .totalPrice(bookingDetail.getTotalPrice())
+                        .startDate(bookingDetail.getStartDate())
+                        .endDate(bookingDetail.getEndDate())
+                        .build());
     }
 
     @Override
     public BookingResponseDTO cancelBooking(CancelBookingRequestDTO request) {
 
-        Booking booking = bookingRepository.findById(request.bookingId())
-                .orElseThrow(() -> new RuntimeException("Booking not found with ID: " + request.bookingId()));
+        Booking booking =
+                bookingRepository
+                        .findById(request.bookingId())
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Booking not found with ID: "
+                                                        + request.bookingId()));
 
         if (booking.getStatus() == BookingStatus.CANCELLED) {
             throw new IllegalStateException("Booking is already cancelled.");
@@ -91,17 +120,34 @@ public class BookingServiceImpl implements BookingService {
         booking.setUpdatedAt(LocalDateTime.now());
         booking.setCancellationReason(request.reason());
         bookingRepository.save(booking);
-        return BookingResponseDTO.builder().bookingId(booking.getId()).status(booking.getStatus()).message("Booking cancelled successfully.").updatedAt(booking.getUpdatedAt()).build();
+        return BookingResponseDTO.builder()
+                .bookingId(booking.getId())
+                .status(booking.getStatus())
+                .message("Booking cancelled successfully.")
+                .updatedAt(booking.getUpdatedAt())
+                .build();
     }
 
     @Override
     public BookingResponseDTO updateBookingDates(
             Long bookingId, LocalDateTime startDate, LocalDateTime endDate) {
-        Booking bookingDetail = bookingRepository.findById(bookingId).orElseThrow(()->new RuntimeException("Booking not found with ID: "+bookingId));
+        Booking bookingDetail =
+                bookingRepository
+                        .findById(bookingId)
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Booking not found with ID: " + bookingId));
 
         bookingDetail.setStartDate(startDate);
         bookingDetail.setEndDate(endDate);
-        return BookingResponseDTO.builder().bookingId(bookingDetail.getId()).status(bookingDetail.getStatus()).totalPrice(bookingDetail.getTotalPrice()).startDate(bookingDetail.getStartDate()).endDate(bookingDetail.getEndDate()).message("Date updated successfully.").build();
-
+        return BookingResponseDTO.builder()
+                .bookingId(bookingDetail.getId())
+                .status(bookingDetail.getStatus())
+                .totalPrice(bookingDetail.getTotalPrice())
+                .startDate(bookingDetail.getStartDate())
+                .endDate(bookingDetail.getEndDate())
+                .message("Date updated successfully.")
+                .build();
     }
 }
