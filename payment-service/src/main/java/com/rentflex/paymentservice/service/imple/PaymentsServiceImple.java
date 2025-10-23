@@ -1,24 +1,22 @@
 package com.rentflex.paymentservice.service.imple;
 
-import com.rentflex.paymentservice.DTO.PaymentRequestDTO;
-import com.rentflex.paymentservice.DTO.PaymentResponseDTO;
-import com.rentflex.paymentservice.DTO.PaymentStatusResponseDTO;
+import com.rentflex.paymentservice.dto.PaymentRequestDTO;
+import com.rentflex.paymentservice.dto.PaymentResponseDTO;
+import com.rentflex.paymentservice.dto.PaymentStatusResponseDTO;
 import com.rentflex.paymentservice.model.Payment;
 import com.rentflex.paymentservice.model.PaymentStatus;
 import com.rentflex.paymentservice.repository.PaymentRepository;
 import com.rentflex.paymentservice.service.PaymentService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class PaymentsServiceImple implements PaymentService {
 
-    @Autowired
-    private PaymentRepository paymentRepository;
+    @Autowired private PaymentRepository paymentRepository;
 
     @Override
     public PaymentResponseDTO initiatePayment(PaymentRequestDTO request) {
@@ -35,25 +33,43 @@ public class PaymentsServiceImple implements PaymentService {
 
         payment = paymentRepository.save(payment);
 
-        return new PaymentResponseDTO(payment);
+        return PaymentResponseDTO.builder()
+                .paymentId(payment.getPaymentId())
+                .bookingId(payment.getBookingId())
+                .userId(payment.getUserId())
+                .vendorId(payment.getVendorId())
+                .amount(payment.getAmount())
+                .currency(payment.getCurrency())
+                .method(payment.getMethod())
+                .status(payment.getStatus())
+                .transactionId(payment.getTransactionId())
+                .gatewayName(payment.getGatewayName())
+                .paymentDate(payment.getPaymentDate())
+                .build();
     }
 
     @Override
     public PaymentStatusResponseDTO verifyPayment(String transactionId) {
-        Payment payment = paymentRepository.findByTransactionId(transactionId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        Payment payment =
+                paymentRepository
+                        .findByTransactionId(transactionId)
+                        .orElseThrow(() -> new RuntimeException("Payment not found"));
 
-        return new PaymentStatusResponseDTO(transactionId, payment.getStatus(), "Payment verification completed");
+        return new PaymentStatusResponseDTO(
+                transactionId, payment.getStatus(), "Payment verification completed");
     }
 
     @Override
     public PaymentResponseDTO updatePaymentStatus(Long paymentId, PaymentStatus status) {
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        Payment payment =
+                paymentRepository
+                        .findById(paymentId)
+                        .orElseThrow(() -> new RuntimeException("Payment not found"));
 
         payment.setStatus(status);
         paymentRepository.save(payment);
-        return PaymentResponseDTO.builder().paymentId(payment.getPaymentId())
+        return PaymentResponseDTO.builder()
+                .paymentId(payment.getPaymentId())
                 .bookingId(payment.getBookingId())
                 .userId(payment.getUserId())
                 .vendorId(payment.getVendorId())
@@ -70,9 +86,12 @@ public class PaymentsServiceImple implements PaymentService {
 
     @Override
     public PaymentResponseDTO getPaymentById(Long paymentId) {
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
-        return PaymentResponseDTO.builder().paymentId(payment.getPaymentId())
+        Payment payment =
+                paymentRepository
+                        .findById(paymentId)
+                        .orElseThrow(() -> new RuntimeException("Payment not found"));
+        return PaymentResponseDTO.builder()
+                .paymentId(payment.getPaymentId())
                 .bookingId(payment.getBookingId())
                 .userId(payment.getUserId())
                 .vendorId(payment.getVendorId())
@@ -88,17 +107,43 @@ public class PaymentsServiceImple implements PaymentService {
 
     @Override
     public List<PaymentResponseDTO> getPaymentsByUser(Long userId) {
-        return paymentRepository.findByUserId(userId)
-                .stream()
-                .map(PaymentResponseDTO::new)
+        return paymentRepository.findByUserId(userId).stream()
+                .map(
+                        payment ->
+                                PaymentResponseDTO.builder()
+                                        .paymentId(payment.getPaymentId())
+                                        .bookingId(payment.getBookingId())
+                                        .userId(payment.getUserId())
+                                        .vendorId(payment.getVendorId())
+                                        .amount(payment.getAmount())
+                                        .currency(payment.getCurrency())
+                                        .method(payment.getMethod())
+                                        .status(payment.getStatus())
+                                        .transactionId(payment.getTransactionId())
+                                        .gatewayName(payment.getGatewayName())
+                                        .paymentDate(payment.getPaymentDate())
+                                        .build())
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<PaymentResponseDTO> getPaymentsByVendor(Long vendorId) {
-        return paymentRepository.findByVendorId(vendorId)
-                .stream()
-                .map(PaymentResponseDTO::new)
+        return paymentRepository.findByVendorId(vendorId).stream()
+                .map(
+                        payment ->
+                                PaymentResponseDTO.builder()
+                                        .paymentId(payment.getPaymentId())
+                                        .bookingId(payment.getBookingId())
+                                        .userId(payment.getUserId())
+                                        .vendorId(payment.getVendorId())
+                                        .amount(payment.getAmount())
+                                        .currency(payment.getCurrency())
+                                        .method(payment.getMethod())
+                                        .status(payment.getStatus())
+                                        .transactionId(payment.getTransactionId())
+                                        .gatewayName(payment.getGatewayName())
+                                        .paymentDate(payment.getPaymentDate())
+                                        .build())
                 .collect(Collectors.toList());
     }
 }

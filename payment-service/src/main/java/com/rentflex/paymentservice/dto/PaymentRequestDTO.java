@@ -1,4 +1,4 @@
-package com.rentflex.paymentservice.DTO;
+package com.rentflex.paymentservice.dto;
 
 import com.rentflex.paymentservice.model.PaymentMethod;
 
@@ -9,6 +9,4 @@ public record PaymentRequestDTO(
         Double amount,
         String currency,
         PaymentMethod method,
-        String gatewayName
-) {
-}
+        String gatewayName) {}

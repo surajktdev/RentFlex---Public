@@ -1,8 +1,7 @@
 package com.rentflex.paymentservice.service;
 
-import com.rentflex.paymentservice.DTO.RefundRequestDTO;
-import com.rentflex.paymentservice.DTO.RefundResponseDTO;
-
+import com.rentflex.paymentservice.dto.RefundRequestDTO;
+import com.rentflex.paymentservice.dto.RefundResponseDTO;
 import java.util.List;
 
 public interface RefundService {

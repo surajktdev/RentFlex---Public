@@ -1,10 +1,9 @@
 package com.rentflex.paymentservice.service;
 
-import com.rentflex.paymentservice.DTO.PaymentRequestDTO;
-import com.rentflex.paymentservice.DTO.PaymentResponseDTO;
-import com.rentflex.paymentservice.DTO.PaymentStatusResponseDTO;
+import com.rentflex.paymentservice.dto.PaymentRequestDTO;
+import com.rentflex.paymentservice.dto.PaymentResponseDTO;
+import com.rentflex.paymentservice.dto.PaymentStatusResponseDTO;
 import com.rentflex.paymentservice.model.PaymentStatus;
-
 import java.util.List;
 
 public interface PaymentService {

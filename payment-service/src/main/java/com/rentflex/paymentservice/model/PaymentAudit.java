@@ -1,7 +1,6 @@
 package com.rentflex.paymentservice.model;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -10,6 +9,7 @@ public class PaymentAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String paymentId;
     private String event;
     private LocalDateTime eventTime;

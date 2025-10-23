@@ -1,9 +1,8 @@
 package com.rentflex.paymentservice.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-
 import java.time.LocalDateTime;
+import lombok.Data;
 
 @Entity
 @Table(name = "payments")
@@ -13,6 +12,7 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentId;
+
     private String bookingId;
     private Long userId;
     private Long vendorId;

@@ -1,4 +1,4 @@
-package com.rentflex.paymentservice.DTO;
+package com.rentflex.paymentservice.dto;
 
 import com.rentflex.paymentservice.model.PaymentStatus;
 import lombok.Builder;
